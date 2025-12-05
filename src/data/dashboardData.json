@@ -1,0 +1,40 @@
+{
+  "user": {
+    "name": "New System",
+    "avatarUrl": "https://randomuser.me/api/portraits/men/1.jpg"
+  },
+  "indicators": [
+    {
+      "title": "Commandes (30 j)",
+      "value": "200",
+      "change": 11.01,
+      "unit": ""
+    },
+    {
+      "title": "Interactions",
+      "value": "1021",
+      "change": -0.03,
+      "unit": ""
+    }
+  ],
+  "wallet": {
+    "title": "Porte feuille",
+    "value": "540 000",
+    "currency": "xfa"
+  },
+  "messagesCount": 5,
+  "salesByMonth": [
+    {"month": "Jan", "sales": 40},
+    {"month": "Feb", "sales": 30},
+    {"month": "Mar", "sales": 45},
+    {"month": "Apr", "sales": 70},
+    {"month": "May", "sales": 65},
+    {"month": "Jun", "sales": 75}
+  ],
+  "salesByProduct": [
+    {"product": "Pommes", "percentage": 52.1, "color": "#FF8C00"},
+    {"product": "Pommes de terre", "percentage": 22.8, "color": "#FFD700"},
+    {"product": "Oignons", "percentage": 13.9, "color": "#FF4500"},
+    {"product": "Autres", "percentage": 11.2, "color": "#DC143C"}
+  ]
+}

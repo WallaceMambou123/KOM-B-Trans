@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Only use a plain background here. The layout version will host the ImageView so we avoid duplicate icons -->
+    <item android:drawable="@color/white" />
+
+</layer-list>
