@@ -32,7 +32,7 @@ const OnboardingScreen1 = () => {
     return (
         <View style = {styles.container} >
             <ImageBackground 
-                source={require('../../assets/images/screens1.jpg')}
+                source={require('../../assets/images/transp1.png')}
                 style = {styles.imageBackground}
             >
                 {/* Utilisation de SafeAreaView pour les boutons d'en-tête */}
@@ -48,14 +48,14 @@ const OnboardingScreen1 = () => {
                     <View style={styles.titleContainer}>
                         <Text style={styles.welcomeText}>BIENVENU SUR</Text>
                         <View style={styles.logoContainer}>
-                            <Text style={styles.komBText}>KOM-B!</Text>
+                            <Text style={styles.komBText}>Kom-B Trans!</Text>
                             <Image source={require('../../assets/images/logo.png')} style={styles.logo} />
                         </View>
                         <Text style={styles.titleText}> Vendez Plus, Gaspillez{"\n"} Moins</Text>
                     </View>
                     
                     <Text style={styles.descriptionText}>
-                        Ne laissez plus vos récoltes se perdre. Kom-b vous connecte directement à des milliers de clients en ville, prêts à payer le juste prix pour la qualité de votre travail. 
+                        Ne laissez plus vos récoltes se perdre. Kom-B Trans vous connecte directement à des milliers de clients en ville, prêts à payer le juste prix pour la qualité de votre travail. 
                     </Text>
 
                     <View style={styles.paginationContainer}>

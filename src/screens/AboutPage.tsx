@@ -17,7 +17,7 @@ const AboutPage = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={isDarkMode ? '#E5E7EB' : '#1F2937'} />
         </TouchableOpacity>
-        <Text style={[styles.title, isDarkMode && styles.titleDark]}>À Propos De KOM-B</Text>
+        <Text style={[styles.title, isDarkMode && styles.titleDark]}>À Propos De Kom-B Trans</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -26,7 +26,7 @@ const AboutPage = () => {
         </View>
 
         <Text style={[styles.desc, isDarkMode && styles.descDark]}>
-          KOM-B est la première plateforme de livraison de produits frais du Cameroun. Nous connectons les agriculteurs locaux directement aux consommateurs.
+          Kom-B Trans est la première plateforme de livraison de produits frais du Cameroun. Nous connectons les agriculteurs locaux directement aux consommateurs.
         </Text>
 
         <Text style={[styles.version, isDarkMode && styles.versionDark]}>Version 1.0.0</Text>

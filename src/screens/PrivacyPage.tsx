@@ -26,7 +26,7 @@ const PrivacyPage = () => {
         </View>
 
         <Text style={[styles.section, isDarkMode && styles.sectionDark]}>
-          KOM-B s'engage à protéger votre vie privée. Nous collectons uniquement les données nécessaires pour améliorer votre expérience.
+          Kom-B Trans s'engage à protéger votre vie privée. Nous collectons uniquement les données nécessaires pour améliorer votre expérience.
         </Text>
 
         <Text style={[styles.subtitle, isDarkMode && styles.subtitleDark]}>Données collectées :</Text>

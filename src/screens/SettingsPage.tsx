@@ -249,7 +249,7 @@ const SettingsPage = () => {
               />
               <SettingsRow
                 icon={<Info size={22} color="#F48C06" />}
-                label="À Propos De KOM-B"
+                label="À Propos De Kom-B Trans"
                 onPress={() => navigation.navigate('AboutPage')}
                 isDarkMode={isDarkMode}
               />

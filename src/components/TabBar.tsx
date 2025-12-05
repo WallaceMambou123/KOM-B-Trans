@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Home, ShoppingBag, BarChart2, Settings } from 'lucide-react-native';
+import { Home, ShoppingBag, BarChart2, Settings, Map } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface TabBarProps {
@@ -19,8 +19,8 @@ const TabBar: React.FC<TabBarProps> = ({ currentRoute, onTabPress }) => {
     },
     {
       route: 'Produits',
-      label: 'Produits',
-      icon: ShoppingBag,
+      label: 'Carte',
+      icon: Map,
       description: '',
     },
     {
