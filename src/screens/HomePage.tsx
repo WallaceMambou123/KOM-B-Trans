@@ -91,7 +91,7 @@ const HomeScreen = () => {
       const count = await AsyncStorage.getItem('completedDeliveriesCount');
       setCompletedToday(count ? parseInt(count) : 0);
     } catch {
-      setCompletedToday(8);
+      setCompletedToday(0);
     }
   };
 
