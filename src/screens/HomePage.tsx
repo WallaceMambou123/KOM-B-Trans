@@ -4,20 +4,35 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   StatusBar,
   Platform,
-  Animated,
-  Alert
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import TravelCard from '../components/TravelCard';
 import TabBar from '../components/TabBar';
-import { Package, CheckCircle, MapPin, Navigation, Clock, Zap, PhoneCall, MessageCircle, CircleAlert } from 'lucide-react-native';
+import { Package, CheckCircle } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import BGPanner from "../assets/images/Group.svg";
 
-const availableDeliveries =
- [
+
+type Delivery = {
+  id: string;
+  date: string;
+  destination: string;
+  distance: string;
+  estimatedTime: string;
+  amount: string;
+  content: string;
+  producerName: string;
+  producerPhone: string;
+  producerAddress: string;
+  clientName: string;
+  clientPhone: string;
+  clientAddress: string;
+};
+
+const initialDeliveries: Delivery[] = [
   {
     id: "CMD-CM-20250912-001",
     date: "12/12/25",
@@ -25,8 +40,7 @@ const availableDeliveries =
     distance: "15 km",
     estimatedTime: "25 min",
     amount: "5 000 CFA",
-    
-    content: "Légumes frais (Manioc, Folong, Piment, Fruits de la passion) - Environ 10-12 kg (Poids estimé)",
+    content: "Légumes frais (Manioc, Folong, Piment, Fruits de la passion) - Environ 10-12 kg",
     producerName: "Mme Alice MBARGA",
     producerPhone: "678 12 34 56",
     producerAddress: "Route Nationale 6, sortie Ouest de Ngaoundéré",
@@ -34,16 +48,38 @@ const availableDeliveries =
     clientPhone: "671 98 76 54",
     clientAddress: "Rue Nkol-Eton, Porte 34B, Nkol-Eton, Yaoundé",
   },
-]
+  // Ajoute d'autres livraisons ici pour tester
+];
 
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
-  const insets = useSafeAreaInsets();
-     const [currentRoute, setCurrentRoute] = useState('Accueil')
- 
+  const [currentRoute, setCurrentRoute] = useState('Accueil');
+  const [availableDeliveries, setAvailableDeliveries] = useState<Delivery[]>(initialDeliveries);
+  const [completedToday, setCompletedToday] = useState(0);
 
-  const fadeAnim = new Animated.Value(0);
-  const slideAnim = new Animated.Value(30);
+  const loadCompletedCount = async () => {
+    try {
+      const count = await AsyncStorage.getItem('completedDeliveriesCount');
+      setCompletedToday(count ? parseInt(count) : 8);
+    } catch {
+      setCompletedToday(8);
+    }
+  };
+
+  const loadAvailableDeliveries = async () => {
+    try {
+      const completedJson = await AsyncStorage.getItem('completedDeliveries');
+      const completedIds = completedJson ? JSON.parse(completedJson) : [];
+
+      const filtered = initialDeliveries.filter(
+        (delivery) => !completedIds.includes(delivery.id)
+      );
+
+      setAvailableDeliveries(filtered);
+    } catch (error) {
+      setAvailableDeliveries(initialDeliveries);
+    }
+  };
 
   useEffect(() => {
     StatusBar.setBarStyle('light-content');
@@ -51,58 +87,60 @@ const HomeScreen = () => {
       StatusBar.setBackgroundColor('#FF8C00');
     }
 
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        friction: 8,
-        tension: 60,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    loadCompletedCount();
+    loadAvailableDeliveries();
   }, []);
 
-  
-    const handleTabPress = (routeName: string) => {
-        switch(routeName) {
-            case 'Accueil':
-                navigation.navigate('HomePage'); 
-                break;
-            case 'Statistiques':
-                navigation.navigate('StatisticsPage'); 
-                break;
-            case 'Parametres':
-                navigation.navigate('SettingsPage');
-                break;
-            default:
-                setCurrentRoute(routeName);
-        }
-    }
+  // Rafraîchir à chaque fois qu’on revient sur l’écran
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadCompletedCount();
+      loadAvailableDeliveries();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
-    const handleDetailsPress = (deliveryDetails: typeof availableDeliveries[0]) => {
-          navigation.navigate('TravelDetailsScreen', { details: deliveryDetails });
+  const handleTabPress = (routeName: string) => {
+    switch (routeName) {
+      case 'Accueil':
+        navigation.navigate('HomePage');
+        break;
+      case 'Statistiques':
+        navigation.navigate('StatisticsPage');
+        break;
+      case 'Parametres':
+        navigation.navigate('SettingsPage');
+        break;
+      default:
+        setCurrentRoute(routeName);
+    }
+  };
+
+  const handleDetailsPress = (delivery: Delivery) => {
+    navigation.navigate('TravelDetailsScreen', { details: delivery });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
+      <View style={styles.backgroundWrapper}>
+      <BGPanner width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={StyleSheet.absoluteFill} />
+    </View>
 
       <ScrollView
-        style={styles.scrollView}
-                contentContainerStyle={styles.contentContainer}
-                showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
       >
         {/* Header Orange */}
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Bonjour Jorel</Text>
-            <Text style={styles.subtitle}>3 livraisons disponibles</Text>
+            <Text style={styles.subtitle}>
+              {availableDeliveries.length === 0
+                ? 'Aucune livraison en cours'
+                : `${availableDeliveries.length} livraison${availableDeliveries.length > 1 ? 's' : ''} disponible${availableDeliveries.length > 1 ? 's' : ''}`}
+            </Text>
           </View>
-        
         </View>
 
         {/* Stats du jour */}
@@ -114,34 +152,36 @@ const HomeScreen = () => {
           </View>
           <View style={styles.statBox}>
             <CheckCircle size={28} color="green" />
-            <Text style={styles.statBig}>8</Text>
+            <Text style={styles.statBig}>{completedToday}</Text>
             <Text style={styles.statLabel}>Complétées</Text>
           </View>
-     
         </View>
 
         {/* Titre section */}
         <Text style={styles.sectionTitle}>Livraisons disponibles</Text>
-            {/* Contenu carte */}    
-            <View>
-              {availableDeliveries.map((delivery, index) => (
-                
-                <TravelCard
-                  id = {delivery.id}
-                  date = {delivery.date}
-                  destination = {delivery.destination}
-                  distance= {delivery.distance}
-                  estimatedTime = {delivery.estimatedTime}
-                  amount = {delivery.amount}
-                  key={index}
-                  onDetailsPress={() => handleDetailsPress(delivery)}
-                />
 
-              ))}
-              
+        {/* Liste des livraisons */}
+        <View>
+          {availableDeliveries.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Aucune livraison pour le moment !</Text>
+              <Text style={styles.emptySubtext}>Revenez plus tard pour de nouvelles courses</Text>
             </View>
-
-        
+          ) : (
+            availableDeliveries.map((delivery, index) => (
+              <TravelCard
+                key={delivery.id}
+                id={delivery.id}
+                date={delivery.date}
+                destination={delivery.destination}
+                distance={delivery.distance}
+                estimatedTime={delivery.estimatedTime}
+                amount={delivery.amount}
+                onDetailsPress={() => handleDetailsPress(delivery)}
+              />
+            ))
+          )}
+        </View>
       </ScrollView>
 
       <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
@@ -150,19 +190,8 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  scrollView: {
-    flex: 1,
-  },
-     contentContainer: {
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 100,
-    },
-
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  contentContainer: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 100 },
   header: {
     backgroundColor: '#FF8C00',
     paddingHorizontal: 20,
@@ -171,20 +200,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  greeting: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#FFFFFF',
-    opacity: 0.9,
-    marginTop: 4,
-  },
-  emoji: {
-    fontSize: 36,
-  },
+  greeting: { fontSize: 26, fontWeight: '800', color: '#FFFFFF' },
+  subtitle: { fontSize: 15, color: '#FFFFFF', opacity: 0.9, marginTop: 4 },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -194,21 +211,9 @@ const styles = StyleSheet.create({
     marginTop: -20,
     borderRadius: 16,
   },
-  statBox: {
-    alignItems: 'center',
-  },
-  statBig: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    opacity: 0.8,
-    marginTop: 4,
-  },
+  statBox: { alignItems: 'center' },
+  statBig: { fontSize: 28, fontWeight: '900', color: '#FFFFFF', marginTop: 8 },
+  statLabel: { fontSize: 12, color: '#FFFFFF', opacity: 0.8, marginTop: 4 },
   sectionTitle: {
     fontSize: 22,
     fontWeight: '800',
@@ -217,132 +222,20 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 12,
   },
-  card: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FFE0B2',
-  },
-  urgentBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: '#000000',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    zIndex: 10,
-  },
-  urgentText: {
-    color: '#FF8C00',
-    fontSize: 11,
-    fontWeight: '900',
-  },
-  cardContent: {
-    padding: 20,
-  },
-  clientRow: {
-    flexDirection: 'row',
+  emptyContainer: {
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    paddingVertical: 60,
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 3,
-    borderColor: '#FF8C00',
-   
-    backgroundColor: '#000000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  avatarText: {
-    color: '#FF8C00',
-    fontSize: 22,
-    fontWeight: '900',
-  },
-  clientName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#000000',
-    flex: 1,
-  },
-  amount: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#000000',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 4,
-  },
-  smallText: {
-    fontSize: 13,
+  emptyText: {
+    fontSize: 20,
     color: '#666',
+    marginBottom: 8,
   },
-  addressBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#FFF8F0',
-    padding: 14,
-    borderRadius: 16,
-    gap: 10,
-    marginBottom: 16,
-  },
-  address: {
+  emptySubtext: {
     fontSize: 15,
-    color: '#000000',
-    flex: 1,
-    fontWeight: '600',
+    color: '#999',
   },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  distance: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#000000',
-  },
-  bonusTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#000000',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    gap: 6,
-  },
-  bonusText: {
-    color: '#FF8C00',
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  acceptButton: {
-    backgroundColor: '#FF8C00',
-    paddingVertical: 18,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  acceptText: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '800',
-  },
+   backgroundWrapper: { ...StyleSheet.absoluteFillObject, opacity: 0.85 }
 });
 
 export default HomeScreen;

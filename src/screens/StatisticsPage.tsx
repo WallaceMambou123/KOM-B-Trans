@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-  StatusBar,
-  Platform
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,212 +14,215 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
-import { DashboardData } from '../data/types';
-import dashboardData from '../data/dashboardData.json';
-import IndicatorCard from '../components/IndicatorCard';
-import SalesChart from '../components/SalesChart';
-import ProductPieChart from '../components/ProductPieChart';
-import { useMessages } from '../context/MessagesContext';
+import { ArrowLeft, Star } from 'lucide-react-native'; 
+import GainsChart from '../components/GainsChart'; 
+
+// Importation des données JSON
+import statisticsData from '../data/statisticsData.json'; // Assurez-vous que le chemin est correct
 
 type StatisticsPageNavigationProp = StackNavigationProp<RootStackParamList, 'StatisticsPage'>;
 
+// Définition du type de données pour la clarté
+interface StatsData {
+    filterLabel: string;
+    totalGains: string;
+    deliveries: number;
+    kilometers: number;
+    averageRating: number;
+    chartData: number[];
+    chartLabels: string[];
+}
+
+// Simule l'affichage des étoiles (inchangé)
+const RatingStars = ({ rating }: { rating: number }) => {
+    const fullStars = Math.floor(rating);
+    const starArray = [];
+
+    for (let i = 0; i < 5; i++) {
+        starArray.push(
+      <Star
+                key={i}
+                size={20}
+                color={i < fullStars ? "#FF8C00" : "#CCCCCC"} 
+                fill={i < fullStars ? "#FF8C00" : "none"}
+                style={{ marginHorizontal: 1 }}
+            />
+        );
+    }
+    return <View style={{ flexDirection: 'row', marginTop: 5 }}>{starArray}</View>;
+};
+
+// --- Composant principal ---
+
 const StatisticsPage = () => {
-  const navigation = useNavigation<StatisticsPageNavigationProp>();
-  const [currentRoute, setCurrentRoute] = React.useState('Statistiques');
-  const insets = useSafeAreaInsets();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { messages } = useMessages();
+  const navigation = useNavigation<StatisticsPageNavigationProp>();
+  const [currentRoute, setCurrentRoute] = useState('Statistiques');
+  const [timeFilter, setTimeFilter] = useState<'Jour' | 'Mois'>('Mois'); 
+  const insets = useSafeAreaInsets();
+  const [loading, setLoading] = useState(false); 
+  
+  // Détermination des données actives en fonction du filtre
+  const activeData: StatsData = timeFilter === 'Mois' 
+    ? statisticsData.monthly as StatsData
+    : statisticsData.daily as StatsData;
+
+  const handleTabPress = (routeName: string) => {
+    switch(routeName) {
+      case 'Accueil':
+        navigation.navigate('HomePage' as never); 
+        break;
+      case 'Maps':
+        navigation.navigate('MapsPage' as never);
+        break;
+      case 'Parametres':
+        navigation.navigate('SettingsPage' as never);
+        break;
+      default:
+        setCurrentRoute(routeName);
+    }
+  };
+  
+  const handleGoBack = () => {
+      navigation.goBack();
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.mainContainer}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF8C00" />
+          <Text style={styles.loading}>Chargement...</Text>
+        </View>
+        <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
+      </SafeAreaView>
+    );
+  }
 
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setData(dashboardData as DashboardData);
-      setLoading(false);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, []);
+  return (
+    <SafeAreaView style={styles.mainContainer}>
+      {/* En-tête de la Page */}
 
-  const handleTabPress = (routeName: string) => {
-    switch(routeName) {
-      case 'Accueil':
-        navigation.navigate('HomePage');
-        break;
-      case 'Produits':
-        navigation.navigate('CommandesPage');
-        break;
-      case 'Parametres':
-        navigation.navigate('SettingsPage');
-        break;
-      default:
-        setCurrentRoute(routeName);
-    }
-  };
 
-  if (!data) {
-    return (
-      <SafeAreaView style={styles.mainContainer}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#F48C06" />
-          <Text style={styles.loading}>Chargement...</Text>
-        </View>
-        <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
-      </SafeAreaView>
-    );
-  }
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollViewContent,
+          { paddingBottom: 80 + (insets.bottom || 0) }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
 
-  const { user, indicators, wallet, salesByMonth, salesByProduct } = data;
-const messagesCount = messages.filter(m => !m.read).length;
-  return (
-    <SafeAreaView style={styles.mainContainer}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollViewContent,
-          { paddingBottom: 80 + (insets.bottom || 0) }
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.name}></Text>
-        </View>
+        {/* CONTENEUR DE FILTRE CENTRÉ */}
+        <View style={styles.centeredFilterContainer}> 
+            <TouchableOpacity 
+                style={[styles.filterButton, timeFilter === 'Jour' && styles.filterActive]}
+                onPress={() => setTimeFilter('Jour')}
+            >
+                <Text style={[styles.filterText, timeFilter === 'Jour' && styles.filterTextActive]}>Jour</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={[styles.filterButton, timeFilter === 'Mois' && styles.filterActive]}
+                onPress={() => setTimeFilter('Mois')}
+            >
+                <Text style={[styles.filterText, timeFilter === 'Mois' && styles.filterTextActive]}>Mois</Text>
+            </TouchableOpacity>
+        </View>
 
-        {/* Indicators */}
-        <View style={styles.indicatorsRow}>
-          {indicators.map((ind, i) => (
-            <IndicatorCard
-              key={ind.title}
-              indicator={ind}
-              color={i === 0 ? '#4CAF50' : '#00ACC1'}
-            />
-          ))}
-        </View>
+        {/* 1. Carte Total des Gains (avec données dynamiques) */}
+        <View style={styles.card}>
+            <Text style={styles.cardTitle}>Total des Gains</Text>
+            
+            <View>
+                {/* Affichage des gains et du label mis à jour */}
+                <Text style={styles.totalGainsAmount}>{activeData.totalGains}</Text>
+                <Text style={styles.totalGainsLabel}>{activeData.filterLabel}</Text> 
+            </View>
 
-        {/* Messages */}
-        <View style={styles.messagesRow}>
-          <Text style={styles.messagesText}>Messages ({messagesCount})</Text>
-          <TouchableOpacity 
-          style={styles.verifyBtn}
-          onPress={() => navigation.navigate('MessagesPage')}
-          >
-            <Text style={styles.verifyText}>Vérifier</Text>
-          </TouchableOpacity>
-        </View>
+            {/* Insertion du composant de graphique avec les données dynamiques */}
+            <GainsChart 
+                data={activeData.chartData} 
+                labels={activeData.chartLabels}
+            /> 
+        </View>
 
-        {/* Wallet */}
-        <View style={styles.walletCard}>
-          <Text style={styles.walletTitle}>{wallet.title}</Text>
-          <View style={styles.walletValue}>
-            <Text style={styles.walletAmount}>
-              {wallet.value} {wallet.currency.toUpperCase()}
-            </Text>
-          </View>
-        </View>
+        {/* 2. Carte Livraisons Effectuées (avec données dynamiques) */}
+        <View style={styles.card}>
+            <Text style={styles.cardTitle}>Livraisons Effectuées</Text>
+            <View style={styles.deliveryRow}>
+                <Text style={styles.deliveryNumber}>{activeData.deliveries}</Text>
+                <Text style={styles.deliveryUnit}>Livraisons</Text>
+                
+                <View style={styles.separator} /> 
+                
+                <Text style={styles.deliveryNumber}>{activeData.kilometers}</Text>
+                <Text style={styles.deliveryUnit}>km</Text>
+            </View>
+        </View>
+        
+        {/* 3. Carte Évaluation Moyenne (avec données dynamiques) */}
+        <View style={styles.card}>
+            <Text style={styles.cardTitle}>Évaluation Moyenne</Text>
+            <View style={styles.ratingRow}>
+                <Text style={styles.ratingValue}>{activeData.averageRating}</Text>
+                <RatingStars rating={activeData.averageRating} />
+            </View>
+        </View>
+        
+      </ScrollView>
 
-        {/* Charts */}
-        <SalesChart salesData={salesByMonth} />
-        <ProductPieChart productData={salesByProduct} />
-      </ScrollView>
-
-      <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
-    </SafeAreaView>
-  );
+      <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loading: {
-    fontSize: 16,
-    color: '#666',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#4CAF50',
-  },
-  name: {
-    marginTop: 10,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  indicatorsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  messagesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  messagesText: {
-    fontSize: 15,
-    color: '#444',
-    fontWeight: '600',
-  },
-  verifyBtn: {
-    backgroundColor: '#FF8C00',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  verifyText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  walletCard: {
-    backgroundColor: 'white',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  walletTitle: {
-    fontSize: 15,
-    color: '#555',
-  },
-  walletValue: {
-    backgroundColor: '#FF8C00',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  walletAmount: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
+  mainContainer: { flex: 1, backgroundColor: '#f5f5f5', marginTop : 20 },
+  scrollView: { flex: 1 },
+  scrollViewContent: { paddingHorizontal: 16, paddingTop: 10 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' },
+  loading: { fontSize: 16, color: '#666' },
+
+  header: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 10, backgroundColor: 'white',
+    borderBottomWidth: 1, borderBottomColor: '#eee',
+  },
+  backButton: { padding: 5 },
+  title: { fontSize: 20, fontWeight: '700', color: '#333', flex: 1, textAlign: 'center' },
+  
+  centeredFilterContainer: {
+    flexDirection: 'row', backgroundColor: '#EAEAEA', borderRadius: 8, padding: 2,
+    alignSelf: 'center', marginBottom: 20,
+  },
+
+  filterButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
+  filterActive: { backgroundColor: '#FF8C00' },
+  filterText: { color: '#666', fontWeight: '600' },
+  filterTextActive: { color: 'white' },
+  
+  card: {
+    backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 15,
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5, elevation: 2,
+  },
+  cardTitle: { fontSize: 16, color: '#555', fontWeight: '600', marginBottom: 10 },
+
+    totalGainsAmount: {
+        fontSize: 36, fontWeight: '900', color: '#FF8C00', marginBottom: 5,
+    },
+    totalGainsLabel: {
+        fontSize: 14, color: '#999', marginBottom: 10,
+    },
+
+  deliveryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', marginTop: 5 },
+  deliveryNumber: { fontSize: 32, fontWeight: '900', color: '#333' },
+  deliveryUnit: {
+    fontSize: 18, color: '#999', fontWeight: '600', marginTop: 10, marginLeft: 5, marginRight: 20,
+  },
+  separator: { width: 1, height: '80%', backgroundColor: '#EAEAEA', marginHorizontal: 15 },
+  
+  ratingRow: { flexDirection: 'row', alignItems: 'center', marginTop: 5 },
+  ratingValue: { fontSize: 32, fontWeight: '900', color: '#FF8C00', marginRight: 10 },
 });
 
 export default StatisticsPage;

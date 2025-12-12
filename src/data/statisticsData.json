@@ -1,0 +1,46 @@
+{
+  "monthly": {
+    "filterLabel": "30 derniers jours",
+    "totalGains": "780 €",
+    "deliveries": 124,
+    "kilometers": 980,
+    "averageRating": 4.9,
+    "chartData": [
+        150,
+        200,
+        220,
+        350,
+        500,
+        480,
+        780
+    ],
+    "chartLabels": [
+        "Sem. 1",
+        "Sem. 2",
+        "Sem. 3",
+        "Sem. 4",
+        "Auj."
+    ]
+  },
+  "daily": {
+    "filterLabel": "Aujourd'hui",
+    "totalGains": "45 €",
+    "deliveries": 8,
+    "kilometers": 45,
+    "averageRating": 5.0,
+    "chartData": [
+        10,
+        15,
+        20,
+        30,
+        45
+    ],
+    "chartLabels": [
+        "08h",
+        "12h",
+        "16h",
+        "20h",
+        "Mtn"
+    ]
+  }
+}

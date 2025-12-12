@@ -279,10 +279,11 @@ const SettingsPage = () => {
               </TouchableOpacity>
             </View> */}
           </ScrollView>
-
-          <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
         </>
-      )}
+        
+      )
+      }
+      <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
     </SafeAreaView>
   );
 };
