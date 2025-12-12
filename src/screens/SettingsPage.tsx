@@ -153,8 +153,8 @@ const SettingsPage = () => {
       case 'Statistiques':
         navigation.navigate('StatisticsPage');
         break;
-      case 'Parametres':
-        navigation.navigate('SettingsPage');
+      case 'MapPage':
+        navigation.navigate('MapPage');
         break;
       default:
         setCurrentRoute(routeName);

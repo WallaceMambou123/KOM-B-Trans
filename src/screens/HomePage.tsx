@@ -48,7 +48,36 @@ const initialDeliveries: Delivery[] = [
     clientPhone: "671 98 76 54",
     clientAddress: "Rue Nkol-Eton, Porte 34B, Nkol-Eton, Yaoundé",
   },
-  // Ajoute d'autres livraisons ici pour tester
+  {
+    id: "CMD-CM-20250912-002",
+    date: "13/12/25",
+    destination: "Bastos, Yaoundé",
+    distance: "8 km",
+    estimatedTime: "15 min",
+    amount: "3 000 CFA",
+    content: "Fruits (Papaye, Mangue) - 5 kg",
+    producerName: "M. Paul TCHAMI",
+    producerPhone: "690 11 22 33",
+    producerAddress: "Marché Central, Yaoundé",
+    clientName: "Mme Brigitte FOTSO",
+    clientPhone: "699 88 77 66",
+    clientAddress: "Rue Bastos, Immeuble 12, Yaoundé",
+  },
+  {
+    id: "CMD-CM-20250912-003",
+    date: "14/12/25",
+    destination: "Melen, Yaoundé",
+    distance: "10 km",
+    estimatedTime: "20 min",
+    amount: "4 500 CFA",
+    content: "Tubercules (Igname, Macabo) - 8 kg",
+    producerName: "Mme Rose NGOH",
+    producerPhone: "677 55 44 33",
+    producerAddress: "Entrée Melen, Yaoundé",
+    clientName: "M. Jean MBALLA",
+    clientPhone: "655 44 33 22",
+    clientAddress: "Cité Melen, Bloc B, Yaoundé",
+  },
 ];
 
 const HomeScreen = () => {
@@ -60,7 +89,7 @@ const HomeScreen = () => {
   const loadCompletedCount = async () => {
     try {
       const count = await AsyncStorage.getItem('completedDeliveriesCount');
-      setCompletedToday(count ? parseInt(count) : 8);
+      setCompletedToday(count ? parseInt(count) : 0);
     } catch {
       setCompletedToday(8);
     }
@@ -91,7 +120,7 @@ const HomeScreen = () => {
     loadAvailableDeliveries();
   }, []);
 
-  // Rafraîchir à chaque fois qu’on revient sur l’écran
+  
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       loadCompletedCount();
@@ -104,6 +133,9 @@ const HomeScreen = () => {
     switch (routeName) {
       case 'Accueil':
         navigation.navigate('HomePage');
+        break;
+      case 'MapPage':
+        navigation.navigate('MapPage');
         break;
       case 'Statistiques':
         navigation.navigate('StatisticsPage');

@@ -11,7 +11,7 @@ import LoginScreen from "../screens/auth/LoginScreen";
 import ConfirmationScreen from "../screens/auth/ConfirmationScreen";
 import confirmationLogin from "../screens/auth/confirmationLogin";
 import HomePage from "../screens/HomePage";
-import CommandesPage from "../screens/CommandesPage";
+import MapPage from "../screens/MapPage";
 import StatisticsPage from "../screens/StatisticsPage";
 import SettingsPage from "../screens/SettingsPage";
 import DetailProductScreen from "../screens/DetailProductScreen";
@@ -68,7 +68,8 @@ export type RootStackParamList = {
   ConfirmationScreen: undefined;
   ConfirmationLogin: undefined;
   HomePage: undefined;
-  CommandesPage: undefined;
+  MapPage: undefined;
+  
   StatisticsPage: undefined;
   SettingsPage: undefined;
   DetailProduct: { product: ProductParams };
@@ -105,7 +106,7 @@ const AppNavigator = ()=>{
                 <Stack.Screen name="ConfirmationScreen" component={ConfirmationScreen} />
                 <Stack.Screen name="ConfirmationLogin" component={confirmationLogin} />
                 <Stack.Screen name = "HomePage" component={HomePage} />
-                <Stack.Screen name="CommandesPage" component={CommandesPage} />
+                <Stack.Screen name="MapPage" component={MapPage} />
                 <Stack.Screen name="StatisticsPage" component={StatisticsPage} />
                 <Stack.Screen name="SettingsPage" component={SettingsPage} />
                 <Stack.Screen name="DetailProduct" component={DetailProductScreen} />

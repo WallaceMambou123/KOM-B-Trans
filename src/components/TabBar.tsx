@@ -18,7 +18,7 @@ const TabBar: React.FC<TabBarProps> = ({ currentRoute, onTabPress }) => {
       description: '',
     },
     {
-      route: 'Produits',
+      route: 'MapPage',
       label: 'Carte',
       icon: Map,
       description: '',

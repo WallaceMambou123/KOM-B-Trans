@@ -71,8 +71,8 @@ const StatisticsPage = () => {
       case 'Accueil':
         navigation.navigate('HomePage' as never); 
         break;
-      case 'Maps':
-        navigation.navigate('MapsPage' as never);
+      case 'MapPage':
+        navigation.navigate('MapPage' as never);
         break;
       case 'Parametres':
         navigation.navigate('SettingsPage' as never);
