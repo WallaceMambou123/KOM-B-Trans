@@ -8,45 +8,33 @@ import {
   StatusBar,
   Platform,
   Animated,
-  
+  Alert
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import TravelCard from '../components/TravelCard';
 import TabBar from '../components/TabBar';
-import { Package, CheckCircle, MapPin, Navigation, Clock, Zap, PhoneCall, MessageCircle } from 'lucide-react-native';
+import { Package, CheckCircle, MapPin, Navigation, Clock, Zap, PhoneCall, MessageCircle, CircleAlert } from 'lucide-react-native';
 
-const availableDeliveries = [
+const availableDeliveries =
+ [
   {
-    id: 1,
-    clientName: "Naruto Uzumaki",
-    address: "Konoha, Village cacher",
-    distance: "2.5 km",
-    amount: "2000 FCFA",
-    time: "15 min",
-    priority: "high",
-    bonus: true,
+    id: "CMD-CM-20250912-001",
+    date: "12/12/25",
+    destination: "Nkol-Eton, Yaoundé",
+    distance: "15 km",
+    estimatedTime: "25 min",
+    amount: "5 000 CFA",
+    
+    content: "Légumes frais (Manioc, Folong, Piment, Fruits de la passion) - Environ 10-12 kg (Poids estimé)",
+    producerName: "Mme Alice MBARGA",
+    producerPhone: "678 12 34 56",
+    producerAddress: "Route Nationale 6, sortie Ouest de Ngaoundéré",
+    clientName: "Monsieur André NGOMÈ",
+    clientPhone: "671 98 76 54",
+    clientAddress: "Rue Nkol-Eton, Porte 34B, Nkol-Eton, Yaoundé",
   },
-  {
-    id: 2,
-    clientName: "Gara du desert",
-    address: "Suna le village du sable",
-    distance: "4.1 km",
-    amount: "3500 FCFA",
-    time: "20 min",
-    priority: "medium",
-    bonus: true,
-  },
-  {
-    id: 3,
-    clientName: "Kizame",
-    address: "Kanoho la ville de la brume",
-    distance: "1.8 km",
-    amount: "1500 FCFA",
-    time: "10 min",
-    priority: "high",
-    bonus: false,
-  },
-];
+]
 
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
@@ -95,6 +83,10 @@ const HomeScreen = () => {
         }
     }
 
+    const handleDetailsPress = (deliveryDetails: typeof availableDeliveries[0]) => {
+          navigation.navigate('TravelDetailsScreen', { details: deliveryDetails });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -125,77 +117,31 @@ const HomeScreen = () => {
             <Text style={styles.statBig}>8</Text>
             <Text style={styles.statLabel}>Complétées</Text>
           </View>
-          {/* <View style={styles.statBox}>
-            <Text style={styles.statBig}>24.5k</Text>
-            <Text style={styles.statLabel}>Gagné</Text>
-          </View> */}
+     
         </View>
 
         {/* Titre section */}
         <Text style={styles.sectionTitle}>Livraisons disponibles</Text>
+            {/* Contenu carte */}    
+            <View>
+              {availableDeliveries.map((delivery, index) => (
+                
+                <TravelCard
+                  id = {delivery.id}
+                  date = {delivery.date}
+                  destination = {delivery.destination}
+                  distance= {delivery.distance}
+                  estimatedTime = {delivery.estimatedTime}
+                  amount = {delivery.amount}
+                  key={index}
+                  onDetailsPress={() => handleDetailsPress(delivery)}
+                />
 
-        {/* Cartes de livraison */}
-        {availableDeliveries.map((delivery, index) => (
-          <Animated.View
-            key={delivery.id}
-            style={[
-              styles.card,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-              },
-              index === 0 && { marginTop: 8 },
-            ]}
-          >
-         
-
-            {/* Contenu carte */}
-            <View style={styles.cardContent}>
-              <View style={styles.clientRow}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>
-                    {delivery.clientName.charAt(0)}
-                  </Text>
-                </View>
-                <View>
-                  <Text style={styles.clientName}>{delivery.clientName}</Text>
-                  <View style={styles.row}>
-                    <Clock size={14} color="#666" />
-                    <Text style={styles.smallText}>{delivery.time}</Text>
-                  </View>
-                </View>
-                {/* <Text style={styles.amount}>{delivery.amount}</Text> */}
-              </View>
-
-              <View style={styles.addressBox}>
-                <MapPin size={16} color="#FF8C00" />
-                <Text style={styles.address}>{delivery.address}</Text>
-              </View>
-
-              <View style={styles.bottomRow}>
-                <View style={styles.row}>
-                  <Navigation size={16} color="#FF8C00" />
-                  <Text style={styles.distance}>{delivery.distance}</Text>
-                </View>
-             
-
-                  <View style = {{flex : 1, flexDirection  : 'row', alignItems : 'center', justifyContent : 'flex-end', gap : 20}}>
-                    <View><PhoneCall size={16} color="#FF8C00" />
-                    </View>
-                    <View>
-                     <MessageCircle size={16} color="#FF8C00" />
-                    </View>
-                  </View>
-               
-              </View>
-
-              {/* Bouton orange */}
-              <TouchableOpacity style={styles.acceptButton}>
-                <Text style={styles.acceptText}>Accepter la livraison</Text>
-              </TouchableOpacity>
+              ))}
+              
             </View>
-          </Animated.View>
-        ))}
+
+        
       </ScrollView>
 
       <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />

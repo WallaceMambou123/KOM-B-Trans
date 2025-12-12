@@ -26,8 +26,8 @@ import GuidePage from "../screens/GuidePage";
 import DetailCommandesProduit from "../screens/DetailCommandesProduit";
 import AddProductScreen from "../screens/AddProductScreen";
 import DetailProductPublier from "../screens/DetailProductPublier";
-
-
+import TravelDetailsScreen from "../screens/TravelDetailsScreen";
+import TravelMapScreen from "../screens/TravelMapScreen";
 
 
 
@@ -53,6 +53,7 @@ export interface ProductParams {
     producer: string;
     rating: number;
   };
+
 }
 
 
@@ -82,7 +83,8 @@ export type RootStackParamList = {
   DetailCommandesProduit: { product: ProductParams };
   AddProductScreen: undefined;
   DetailProductPublier : {product : ProductParams}
-
+  TravelDetailsScreen : {product : ProductParams}
+  TravelMapScreen:{product : ProductParams}
 };
 
 
@@ -118,7 +120,8 @@ const AppNavigator = ()=>{
                 <Stack.Screen name="DetailCommandesProduit" component={DetailCommandesProduit} />
                 <Stack.Screen name="AddProductScreen" component={AddProductScreen} />
                 <Stack.Screen name="DetailProductPublier" component={DetailProductPublier} />
-
+                <Stack.Screen name="TravelDetailsScreen" component={TravelDetailsScreen} />
+                <Stack.Screen name="TravelMapScreen" component={TravelMapScreen} />
 
 
 
