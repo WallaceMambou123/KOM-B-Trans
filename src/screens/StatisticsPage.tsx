@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  BackHandler,
 } from 'react-native';
 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import TabBar from '../components/TabBar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
@@ -24,156 +25,151 @@ type StatisticsPageNavigationProp = StackNavigationProp<RootStackParamList, 'Sta
 
 // Définition du type de données pour la clarté
 interface StatsData {
-    filterLabel: string;
-    totalGains: string;
-    deliveries: number;
-    kilometers: number;
-    averageRating: number;
-    chartData: number[];
-    chartLabels: string[];
+  filterLabel: string;
+  totalGains: string;
+  deliveries: number;
+  kilometers: number;
+  averageRating: number;
+  chartData: number[];
+  chartLabels: string[];
 }
 
 // Simule l'affichage des étoiles (inchangé)
 const RatingStars = ({ rating }: { rating: number }) => {
-    const fullStars = Math.floor(rating);
-    const starArray = [];
+  const fullStars = Math.floor(rating);
+  const starArray = [];
 
-    for (let i = 0; i < 5; i++) {
-        starArray.push(
-      <Star
-                key={i}
-                size={20}
-                color={i < fullStars ? "#FF8C00" : "#CCCCCC"} 
-                fill={i < fullStars ? "#FF8C00" : "none"}
-                style={{ marginHorizontal: 1 }}
-            />
-        );
-    }
-    return <View style={{ flexDirection: 'row', marginTop: 5 }}>{starArray}</View>;
+  for (let i = 0; i < 5; i++) {
+    starArray.push(
+      <Star
+        key={i}
+        size={20}
+        color={i < fullStars ? "#FF8C00" : "#CCCCCC"} 
+        fill={i < fullStars ? "#FF8C00" : "none"}
+        style={{ marginHorizontal: 1 }}
+      />
+    );
+  }
+  return <View style={{ flexDirection: 'row', marginTop: 5 }}>{starArray}</View>;
 };
 
 // --- Composant principal ---
 
 const StatisticsPage = () => {
-  const navigation = useNavigation<StatisticsPageNavigationProp>();
-  const [currentRoute, setCurrentRoute] = useState('Statistiques');
-  const [timeFilter, setTimeFilter] = useState<'Jour' | 'Mois'>('Mois'); 
-  const insets = useSafeAreaInsets();
-  const [loading, setLoading] = useState(false); 
-  
-  // Détermination des données actives en fonction du filtre
-  const activeData: StatsData = timeFilter === 'Mois' 
-    ? statisticsData.monthly as StatsData
-    : statisticsData.daily as StatsData;
+  const navigation = useNavigation<StatisticsPageNavigationProp>();
+  const [currentRoute, setCurrentRoute] = useState('Statistiques');
+  const [timeFilter, setTimeFilter] = useState<'Jour' | 'Mois'>('Mois');
+  const insets = useSafeAreaInsets();
 
-  const handleTabPress = (routeName: string) => {
-    switch(routeName) {
-      case 'Accueil':
-        navigation.navigate('HomePage' as never); 
-        break;
-      case 'MapPage':
-        navigation.navigate('MapPage' as never);
-        break;
-      case 'Parametres':
-        navigation.navigate('SettingsPage' as never);
-        break;
-      default:
-        setCurrentRoute(routeName);
-    }
-  };
-  
-  const handleGoBack = () => {
-      navigation.goBack();
-  }
+  // Données actives selon le filtre
+  const activeData: StatsData =
+    timeFilter === 'Mois'
+      ? (statisticsData.monthly as StatsData)
+      : (statisticsData.daily as StatsData);
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.mainContainer}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF8C00" />
-          <Text style={styles.loading}>Chargement...</Text>
-        </View>
-        <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
-      </SafeAreaView>
-    );
-  }
+  // Gestion du bouton retour Android : toujours revenir à HomePage
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'HomePage' }],
+        });
+        return true;
+      };
 
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress as any);
 
-  return (
-    <SafeAreaView style={styles.mainContainer}>
-      {/* En-tête de la Page */}
+      return () => {
+        subscription.remove();
+      };
+    }, [navigation])
+  );
 
+  const handleTabPress = (name: string) => {
+    switch (name) {
+      case 'Accueil':
+        navigation.navigate('HomePage');
+        break;
+      case 'Statistiques':
+        // déjà sur cette page
+        break;
+      case 'Maps':
+      case 'MapPage':
+        navigation.navigate('MapPage');
+        break;
+      case 'Parametres':
+        navigation.navigate('SettingsPage');
+        break;
+      default:
+        setCurrentRoute(name);
+    }
+  };
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollViewContent,
-          { paddingBottom: 80 + (insets.bottom || 0) }
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
-
+  return (
+    <SafeAreaView style={styles.mainContainer}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollViewContent,
+          { paddingBottom: 80 + (insets.bottom || 0) },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* CONTENEUR DE FILTRE CENTRÉ */}
-        <View style={styles.centeredFilterContainer}> 
-            <TouchableOpacity 
-                style={[styles.filterButton, timeFilter === 'Jour' && styles.filterActive]}
-                onPress={() => setTimeFilter('Jour')}
-            >
-                <Text style={[styles.filterText, timeFilter === 'Jour' && styles.filterTextActive]}>Jour</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-                style={[styles.filterButton, timeFilter === 'Mois' && styles.filterActive]}
-                onPress={() => setTimeFilter('Mois')}
-            >
-                <Text style={[styles.filterText, timeFilter === 'Mois' && styles.filterTextActive]}>Mois</Text>
-            </TouchableOpacity>
-        </View>
+        <View style={styles.centeredFilterContainer}>
+          <TouchableOpacity
+            style={[styles.filterButton, timeFilter === 'Jour' && styles.filterActive]}
+            onPress={() => setTimeFilter('Jour')}
+          >
+            <Text style={[styles.filterText, timeFilter === 'Jour' && styles.filterTextActive]}>Jour</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterButton, timeFilter === 'Mois' && styles.filterActive]}
+            onPress={() => setTimeFilter('Mois')}
+          >
+            <Text style={[styles.filterText, timeFilter === 'Mois' && styles.filterTextActive]}>Mois</Text>
+          </TouchableOpacity>
+        </View>
 
-        {/* 1. Carte Total des Gains (avec données dynamiques) */}
-        <View style={styles.card}>
-            <Text style={styles.cardTitle}>Total des Gains</Text>
-            
-            <View>
-                {/* Affichage des gains et du label mis à jour */}
-                <Text style={styles.totalGainsAmount}>{activeData.totalGains}</Text>
-                <Text style={styles.totalGainsLabel}>{activeData.filterLabel}</Text> 
-            </View>
+        {/* 1. Carte Total des Gains */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Total des Gains</Text>
+          <View>
+            <Text style={styles.totalGainsAmount}>{activeData.totalGains}</Text>
+            <Text style={styles.totalGainsLabel}>{activeData.filterLabel}</Text>
+          </View>
 
-            {/* Insertion du composant de graphique avec les données dynamiques */}
-            <GainsChart 
-                data={activeData.chartData} 
-                labels={activeData.chartLabels}
-            /> 
-        </View>
+          <GainsChart data={activeData.chartData} labels={activeData.chartLabels} />
+        </View>
 
-        {/* 2. Carte Livraisons Effectuées (avec données dynamiques) */}
-        <View style={styles.card}>
-            <Text style={styles.cardTitle}>Livraisons Effectuées</Text>
-            <View style={styles.deliveryRow}>
-                <Text style={styles.deliveryNumber}>{activeData.deliveries}</Text>
-                <Text style={styles.deliveryUnit}>Livraisons</Text>
-                
-                <View style={styles.separator} /> 
-                
-                <Text style={styles.deliveryNumber}>{activeData.kilometers}</Text>
-                <Text style={styles.deliveryUnit}>km</Text>
-            </View>
-        </View>
-        
-        {/* 3. Carte Évaluation Moyenne (avec données dynamiques) */}
-        <View style={styles.card}>
-            <Text style={styles.cardTitle}>Évaluation Moyenne</Text>
-            <View style={styles.ratingRow}>
-                <Text style={styles.ratingValue}>{activeData.averageRating}</Text>
-                <RatingStars rating={activeData.averageRating} />
-            </View>
-        </View>
-        
-      </ScrollView>
+        {/* 2. Carte Livraisons Effectuées */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Livraisons Effectuées</Text>
+          <View style={styles.deliveryRow}>
+            <Text style={styles.deliveryNumber}>{activeData.deliveries}</Text>
+            <Text style={styles.deliveryUnit}>Livraisons</Text>
 
-      <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
-    </SafeAreaView>
-  );
+            <View style={styles.separator} />
+
+            <Text style={styles.deliveryNumber}>{activeData.kilometers}</Text>
+            <Text style={styles.deliveryUnit}>km</Text>
+          </View>
+        </View>
+
+        {/* 3. Carte Évaluation Moyenne */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Évaluation Moyenne</Text>
+          <View style={styles.ratingRow}>
+            <Text style={styles.ratingValue}>{activeData.averageRating}</Text>
+            <RatingStars rating={activeData.averageRating} />
+          </View>
+        </View>
+      </ScrollView>
+
+      <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -184,16 +180,16 @@ const styles = StyleSheet.create({
   loading: { fontSize: 16, color: '#666' },
 
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 10, backgroundColor: 'white',
-    borderBottomWidth: 1, borderBottomColor: '#eee',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 10, backgroundColor: 'white',
+    borderBottomWidth: 1, borderBottomColor: '#eee',
   },
   backButton: { padding: 5 },
   title: { fontSize: 20, fontWeight: '700', color: '#333', flex: 1, textAlign: 'center' },
   
   centeredFilterContainer: {
-    flexDirection: 'row', backgroundColor: '#EAEAEA', borderRadius: 8, padding: 2,
-    alignSelf: 'center', marginBottom: 20,
+    flexDirection: 'row', backgroundColor: '#EAEAEA', borderRadius: 8, padding: 2,
+    alignSelf: 'center', marginBottom: 20,
   },
 
   filterButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
@@ -202,8 +198,8 @@ const styles = StyleSheet.create({
   filterTextActive: { color: 'white' },
   
   card: {
-    backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 15,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5, elevation: 2,
+    backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 15,
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5, elevation: 2,
   },
   cardTitle: { fontSize: 16, color: '#555', fontWeight: '600', marginBottom: 10 },
 
@@ -217,7 +213,7 @@ const styles = StyleSheet.create({
   deliveryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', marginTop: 5 },
   deliveryNumber: { fontSize: 32, fontWeight: '900', color: '#333' },
   deliveryUnit: {
-    fontSize: 18, color: '#999', fontWeight: '600', marginTop: 10, marginLeft: 5, marginRight: 20,
+    fontSize: 18, color: '#999', fontWeight: '600', marginTop: 10, marginLeft: 5, marginRight: 20,
   },
   separator: { width: 1, height: '80%', backgroundColor: '#EAEAEA', marginHorizontal: 15 },
   

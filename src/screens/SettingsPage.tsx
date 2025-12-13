@@ -11,10 +11,11 @@ import {
   Platform,
   StatusBar,
   Alert,
-  Image
+  Image,
+  BackHandler,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import {
@@ -132,6 +133,25 @@ const SettingsPage = () => {
   const { profile, isDarkMode, toggleDarkMode, logout } = useUser();
   const [loading, setLoading] = useState(true);
   const fullName = `${profile.firstName} ${profile.lastName}`;
+
+  // Gestion du bouton retour Android : toujours revenir à HomePage
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'HomePage' }],
+        });
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress as any);
+
+      return () => {
+        subscription.remove();
+      };
+    }, [navigation])
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 800);

@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Home, ShoppingBag, BarChart2, Settings, Map } from 'lucide-react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Home, Map, BarChart2, Settings } from 'lucide-react-native';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 interface TabBarProps {
   currentRoute: string;
-  onTabPress: (routeName: string) => void;
+  onTabPress?: (routeName: string) => void;
 }
 
 const TabBar: React.FC<TabBarProps> = ({ currentRoute, onTabPress }) => {
@@ -38,7 +38,7 @@ const TabBar: React.FC<TabBarProps> = ({ currentRoute, onTabPress }) => {
   ];
 
   return (
-    <View style={[styles.container, { paddingBottom:  5 }]}>
+    <View style={[styles.container, { paddingBottom:  5 }]}> 
       {tabs.map((tab) => {
         const isActive = currentRoute === tab.route;
         const IconComponent = tab.icon;
@@ -46,7 +46,7 @@ const TabBar: React.FC<TabBarProps> = ({ currentRoute, onTabPress }) => {
           <TouchableOpacity
             key={tab.route}
             style={styles.tab}
-            onPress={() => onTabPress(tab.route)}
+            onPress={() => onTabPress && onTabPress(tab.route)}
           >
             <IconComponent
               size={20}
