@@ -21,7 +21,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 
 // ATTENTION: Remplace par ta vraie clé API Google Maps
-const GOOGLE_API_KEY = 'AIzaSyC-nENl-fuT3F9dwAuzRhVVUcBBx7QP6UE'; 
+const GOOGLE_API_KEY = 'AIzaSyArB_D4xHhDSc4mUXX86g0ic73moPbTNL8'; 
 
 type LatLng = { latitude: number; longitude: number };
 
@@ -195,19 +195,26 @@ const MapPage = () => {
         <View style={[styles.inputWrapper, styles.departureInput]}>
           <LocateFixed size={20} color="#4CAF50" style={styles.inputIcon} />
           <GooglePlacesAutocomplete
-            placeholder="Ville de départ..."
-            onPress={(data, details = null) => {
-              if (details?.geometry?.location) {
-                setOrigin({ latitude: details.geometry.location.lat, longitude: details.geometry.location.lng });
-              }
-            }}
-            query={{ key: GOOGLE_API_KEY, language: 'fr', components: 'country:cm' }}
-            fetchDetails={true}
-            styles={autocompleteStyles}
-            enablePoweredByContainer={false}
-            debounce={300}
-            // clearButtonMode="while-editing"
-          />
+  placeholder="Ville de départ..."
+  onPress={(data, details = null) => {
+    if (details?.geometry?.location) {
+      setOrigin({
+        latitude: details.geometry.location.lat,
+        longitude: details.geometry.location.lng,
+      });
+    }
+  }}
+  query={{ key: GOOGLE_API_KEY, language: 'fr', components: 'country:cm' }}
+  fetchDetails={true}
+  styles={autocompleteStyles}
+  enablePoweredByContainer={false}
+  debounce={300}
+  minLength={2}
+  onFail={(error) => {
+    console.log('Places Autocomplete error:', error);
+    Alert.alert('Erreur', 'Impossible de charger les suggestions. Vérifie la clé Google Places.');
+  }}
+/>
         </View>
 
         {/* Input Arrivée */}
@@ -319,7 +326,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 40,
+    bottom: 0,
     zIndex: 20,
   },
 });
