@@ -1,4 +1,4 @@
-// MapPage.tsx (Version Corrigée et Améliorée)
+// MapPage.tsx – Version finale proche de ta maquette
 
 import React, { useState, useRef } from 'react';
 import {
@@ -14,14 +14,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { ArrowLeft, Navigation, LocateFixed, MapPin } from 'lucide-react-native'; 
+import { ArrowLeft, Navigation } from 'lucide-react-native'; 
 import TabBar from '../components/TabBar';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
-// ATTENTION: Remplace par ta vraie clé API Google Maps
-const GOOGLE_API_KEY = 'AIzaSyArB_D4xHhDSc4mUXX86g0ic73moPbTNL8'; 
+const GOOGLE_API_KEY = 'AIzaSyD2_W0j0yTIHdqOXR6z_4cnJjHRVCKxvZw'; 
 
 type LatLng = { latitude: number; longitude: number };
 
@@ -33,25 +32,21 @@ const MapPage = () => {
   const [origin, setOrigin] = useState<LatLng | null>(null);
   const [destination, setDestination] = useState<LatLng | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState<LatLng[]>([]);
-  
 
-  // Région par défaut : Cameroun (Yaoundé)
   const CAMEROON_REGION = {
-    latitude: 3.8667,
-    longitude: 11.5167,
-    latitudeDelta: 8.0,
-    longitudeDelta: 8.0,
+    latitude: 7.3697,         
+    longitude: 12.3547,
+    latitudeDelta: 10.0,
+    longitudeDelta: 10.0,
   };
-
-  // Gestion du bouton retour Android : toujours revenir à HomePage
-  useFocusEffect(
+ useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
         navigation.reset({
           index: 0,
           routes: [{ name: 'HomePage' }],
         });
-        return true; // on consomme l'événement
+        return true;  
       };
 
       const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -62,7 +57,6 @@ const MapPage = () => {
     }, [navigation])
   );
 
-  // Fonction de traçage de l'itinéraire
   const getDirections = async () => {
     if (!origin || !destination) {
       Alert.alert('Attention', 'Veuillez sélectionner un point de départ et une destination');
@@ -74,26 +68,26 @@ const MapPage = () => {
       const response = await fetch(url);
       const data = await response.json();
 
-      if (data.routes.length > 0) {
+      if (data.status === 'OK' && data.routes.length > 0) {
         const points = decodePolyline(data.routes[0].overview_polyline.points);
         setRouteCoordinates(points);
 
         mapRef.current?.fitToCoordinates(points, {
-          edgePadding: { top: 200, right: 80, bottom: 300, left: 80 },
+          edgePadding: { top: 150, right: 50, bottom: 300, left: 50 },
           animated: true,
         });
       } else {
-        Alert.alert('Aucun trajet', 'Aucun itinéraire trouvé entre ces deux points');
+        Alert.alert('Aucun trajet', data.status === 'NOT_FOUND' ? 'Itinéraire introuvable' : 'Aucun itinéraire trouvé');
         setRouteCoordinates([]);
       }
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de tracer l’itinéraire. Vérifiez votre clé API et les services.');
-      console.log(error);
+      Alert.alert('Erreur réseau', 'Impossible de calculer l’itinéraire');
+      console.error(error);
     }
   };
 
-  // Décoder la polyline Google
   const decodePolyline = (t: string): LatLng[] => {
+    
     let points: LatLng[] = [];
     let index = 0, len = t.length;
     let lat = 0, lng = 0;
@@ -123,7 +117,7 @@ const MapPage = () => {
     return points;
   };
 
-  const handleTabPress = (name: string) => {
+const handleTabPress = (name: string) => {
     switch (name) {
       case 'Accueil': navigation.navigate('HomePage'); break;
       case 'Maps': break;
@@ -136,48 +130,32 @@ const MapPage = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'HomePage' }],
-            })
-          }
-        >
-          <ArrowLeft size={26} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Planifier une livraison</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      
 
-      {/* Carte Google Maps */}
+      {/* Carte */}
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
         style={StyleSheet.absoluteFillObject}
         initialRegion={CAMEROON_REGION}
+        showsUserLocation={false}
       >
-        {/* Marqueur Départ */}
         {origin && (
-          <Marker coordinate={origin} anchor={{ x: 0.5, y: 1 }}>
+          <Marker coordinate={origin}>
             <View style={styles.markerStart}>
               <Text style={styles.markerText}>Départ</Text>
             </View>
           </Marker>
         )}
 
-        {/* Marqueur Arrivée */}
         {destination && (
-          <Marker coordinate={destination} anchor={{ x: 0.5, y: 1 }}>
+          <Marker coordinate={destination}>
             <View style={styles.markerEnd}>
               <Text style={styles.markerText}>Arrivée</Text>
             </View>
           </Marker>
         )}
 
-        {/* Ligne rouge du trajet */}
         {routeCoordinates.length > 0 && (
           <Polyline
             coordinates={routeCoordinates}
@@ -189,59 +167,86 @@ const MapPage = () => {
         )}
       </MapView>
 
-      {/* Barre de recherche (Améliorée) */}
+      {/* Barre de recherche */}
       <View style={styles.searchContainer}>
-        {/* Input Départ */}
-        <View style={[styles.inputWrapper, styles.departureInput]}>
-          <LocateFixed size={20} color="#4CAF50" style={styles.inputIcon} />
+        {/* Départ */}
+        <View style={[styles.inputWrapper, { borderColor: '#4CAF50' }]}>
+          <View style={styles.circleIcon}>
+            <View style={styles.greenDot} />
+          </View>
           <GooglePlacesAutocomplete
-  placeholder="Ville de départ..."
-  onPress={(data, details = null) => {
-    if (details?.geometry?.location) {
-      setOrigin({
-        latitude: details.geometry.location.lat,
-        longitude: details.geometry.location.lng,
-      });
-    }
-  }}
-  query={{ key: GOOGLE_API_KEY, language: 'fr', components: 'country:cm' }}
-  fetchDetails={true}
-  styles={autocompleteStyles}
-  enablePoweredByContainer={false}
-  debounce={300}
-  minLength={2}
-  onFail={(error) => {
-    console.log('Places Autocomplete error:', error);
-    Alert.alert('Erreur', 'Impossible de charger les suggestions. Vérifie la clé Google Places.');
-  }}
-/>
-        </View>
-
-        {/* Input Arrivée */}
-        <View style={[styles.inputWrapper, styles.arrivalInput]}>
-          <MapPin size={20} color="#FF6B35" style={styles.inputIcon} />
-          <GooglePlacesAutocomplete
-            placeholder="Ville d'arrivée..."
+            placeholder="Ville de départ..."
+            fetchDetails={true}
             onPress={(data, details = null) => {
               if (details?.geometry?.location) {
-                setDestination({ latitude: details.geometry.location.lat, longitude: details.geometry.location.lng });
+                const newOrigin = {
+                  latitude: details.geometry.location.lat,
+                  longitude: details.geometry.location.lng,
+                };
+                setOrigin(newOrigin);
+                mapRef.current?.animateToRegion({
+                  ...newOrigin,
+                  latitudeDelta: 0.05,
+                  longitudeDelta: 0.05,
+                });
               }
             }}
-            query={{ key: GOOGLE_API_KEY, language: 'fr', components: 'country:cm' }}
-            fetchDetails={true}
+            query={{
+              key: GOOGLE_API_KEY,
+              language: 'fr',
+              components: 'country:cm',
+            }}
             styles={autocompleteStyles}
-            enablePoweredByContainer={false}
+            textInputProps={{
+              placeholderTextColor: '#999',
+              clearButtonMode: 'while-editing',
+            }}
             debounce={300}
-            //clearButtonMode="while-editing"
           />
         </View>
 
+        {/* Arrivée */}
+        <View style={[styles.inputWrapper, { borderColor: '#FF6B35' }]}>
+          <View style={styles.circleIcon}>
+            <View style={styles.orangeSquare} />
+          </View>
+          <GooglePlacesAutocomplete
+            placeholder="Ville d'arrivée..."
+            fetchDetails={true}
+            onPress={(data, details = null) => {
+              if (details?.geometry?.location) {
+                const newDest = {
+                  latitude: details.geometry.location.lat,
+                  longitude: details.geometry.location.lng,
+                };
+                setDestination(newDest);
+                mapRef.current?.animateToRegion({
+                  ...newDest,
+                  latitudeDelta: 0.05,
+                  longitudeDelta: 0.05,
+                });
+              }
+            }}
+            query={{
+              key: GOOGLE_API_KEY,
+              language: 'fr',
+              components: 'country:cm',
+            }}
+            styles={autocompleteStyles}
+            textInputProps={{
+              placeholderTextColor: '#999',
+            }}
+            debounce={300}
+          />
+        </View>
+
+        {/* Bouton Tracer */}
         <TouchableOpacity style={styles.traceBtn} onPress={getDirections}>
           <Text style={styles.traceBtnText}>Tracer l'itinéraire</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Bouton localisation (recenter sur le Cameroun) */}
+      {/* Bouton recentrage */}
       <TouchableOpacity
         style={styles.locationBtn}
         onPress={() => mapRef.current?.animateToRegion(CAMEROON_REGION, 1000)}
@@ -249,44 +254,30 @@ const MapPage = () => {
         <Navigation size={24} color="#FF6B35" strokeWidth={3} />
       </TouchableOpacity>
 
-      {/* Info trajet */}
+      {/* Bannière trajet calculé */}
       {routeCoordinates.length > 0 && (
         <View style={styles.routeInfo}>
           <Text style={styles.routeText}>Trajet calculé !</Text>
-          <Text style={styles.routeSub}>Prêt à accepter une course</Text>
+          <Text style={styles.routeSub}>Pret a accepter une course</Text>
         </View>
       )}
-
-      <View style={styles.tabBarWrapper}>
-        <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
-      </View>
+       
+      <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
     </SafeAreaView>
+    
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+   container: { flex: 1 },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#fff',
     zIndex: 11, elevation: 6, borderBottomWidth: 1, borderBottomColor: '#eee',
   },
   title: { fontSize: 20, fontWeight: '800', color: '#000' },
-  searchContainer: {
-    position: 'absolute', top: 80, left: 16, right: 16,
-    backgroundColor: 'white', borderRadius: 16, padding: 16,
-    elevation: 12, zIndex: 10,
-  },
-  inputWrapper: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginBottom: 12, 
-    zIndex: 10, 
-    backgroundColor: '#f5f5f5', 
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingLeft: 10,
-},
+  
+
   departureInput: {
     borderColor: '#4CAF50', 
   },
@@ -296,11 +287,7 @@ const styles = StyleSheet.create({
   inputIcon: { 
     marginRight: 8, 
 },
-  traceBtn: {
-    backgroundColor: '#FF6B35', padding: 14, borderRadius: 12,
-    alignItems: 'center', marginTop: 8,
-  },
-  traceBtnText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
+
   locationBtn: {
     position: 'absolute', right: 20, bottom: 140,
     backgroundColor: 'white', padding: 14, borderRadius: 50,
@@ -329,37 +316,86 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 20,
   },
+
+  searchContainer: {
+    position: 'absolute',
+    top: 90,
+    left: 16,
+    right: 16,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 16,
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    borderWidth: 2,
+    paddingHorizontal: 12,
+    height: 56,
+    marginBottom: 12,
+  },
+  circleIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  greenDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#4CAF50',
+  },
+  orangeSquare: {
+    width: 12,
+    height: 12,
+    backgroundColor: '#FF6B35',
+  },
+  traceBtn: {
+    backgroundColor: '#FF6B35',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  traceBtnText: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 17,
+  },
+  // ... le reste de tes styles (marker, routeInfo, etc.) est parfait
 });
 
 const autocompleteStyles = {
-  container: { 
-    flex: 1, 
-    zIndex: 20, 
-    paddingRight: 10, 
-},
-  textInputContainer: {
-    paddingTop: 0,
-    paddingHorizontal: 0,
+  container: { flex: 1 },
+  textInputContainer: { backgroundColor: 'transparent', borderWidth: 0 },
+  textInput: {
+    height: 52,
+    fontSize: 16,
     backgroundColor: 'transparent',
-    borderTopWidth: 0, 
-    borderBottomWidth: 0,
-},
-  textInput: {
-    height: 48,
-    borderRadius: 0, 
-    paddingHorizontal: 0, 
-    fontSize: 16,
-    backgroundColor: 'transparent', 
-    borderWidth: 0, 
-    borderColor: 'transparent',
-  },
-  listView: { 
-    backgroundColor: 'white', 
-    borderRadius: 12, 
-    marginTop: 4, 
-    elevation: 4, 
-},
-  row: { padding: 12 },
+    paddingLeft: 0,
+    marginLeft: 0,
+    color: '#000',
+  },
+  listView: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    marginTop: 8,
+    elevation: 6,
+    maxHeight: 200,
+  },
+  row: { padding: 13, height: 48 },
+  separator: { height: 0.5, backgroundColor: '#eee' },
 };
 
 export default MapPage;
