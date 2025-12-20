@@ -1,4 +1,4 @@
-package com.kom_b_pro
+package com.kom_b_trans
 
 import android.app.Application
 import com.facebook.react.PackageList

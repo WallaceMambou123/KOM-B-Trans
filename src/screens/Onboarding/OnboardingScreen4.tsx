@@ -1,23 +1,25 @@
-import React from 'react'
-import { 
+import React from 'react';
+import {
     ImageBackground,
     View,
     StyleSheet,
     Text,
     TouchableOpacity,
-    
     Dimensions,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { StackNavigationProp } from '@react-navigation/stack'
-import { useNavigation } from '@react-navigation/native'
-import { RootStackParamList } from '../../navigation/AppNavigator' // Assurez-vous que ce chemin est correct
+    StatusBar,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../../navigation/AppNavigator';
 
 const { width, height } = Dimensions.get('window');
-type OnboardingScreen4NavigationProp = StackNavigationProp<RootStackParamList, 'OnboardingScreen4'>
+const PRIMARY_COLOR = '#F48C06';
+
+type OnboardingScreen4NavigationProp = StackNavigationProp<RootStackParamList, 'OnboardingScreen4'>;
 
 const OnboardingScreen4 = () => {
-    const navigation = useNavigation<OnboardingScreen4NavigationProp>()
+    const navigation = useNavigation<OnboardingScreen4NavigationProp>();
 
     const handleNextPress = () => {
         navigation.navigate('SignUpScreen');
@@ -28,29 +30,34 @@ const OnboardingScreen4 = () => {
     };
 
     return (
-        <View style = {styles.container} >
-            <ImageBackground 
+        <View style={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+            <ImageBackground
                 source={require('../../assets/images/screens4.png')}
-                style = {[styles.imageBackground, { paddingTop: 0 }]}
+                style={styles.imageBackground}
+                resizeMode="cover"
             >
-                {/* Structure d'en-tête pour aligner Précédent */}
-                <SafeAreaView style={[styles.header, { marginTop: 0 }]}>
+                <SafeAreaView style={styles.header}>
                     <TouchableOpacity style={styles.headerButton} onPress={handlePreviousPress}>
                         <Text style={styles.headerButtonText}>← précédent</Text>
                     </TouchableOpacity>
+                    <View style={styles.headerSpacer} />
                 </SafeAreaView>
             </ImageBackground>
 
             <View style={styles.contentContainer}>
-                <SafeAreaView style={styles.contentWrapper}>
+                <View style={styles.mainContent}>
                     <View style={styles.titleContainer}>
-                        <Text style={styles.welcomeText}>Prêt à Faire Grandir {"\n"}Votre Activité ?</Text>
+                        <Text style={styles.titleText}>Prêt à Faire Grandir</Text>
+                        <Text style={styles.titleText}>Votre Activité ?</Text>
                     </View>
-                    
+
                     <Text style={styles.descriptionText}>
                         Recevez une notification pour chaque nouvelle commande. Notre réseau de transporteurs partenaires vient récupérer les produits et s'occupe de la livraison. Concentrez-vous sur ce que vous faites de mieux : cultiver.
                     </Text>
+                </View>
 
+                <View style={styles.bottomContainer}>
                     <View style={styles.paginationContainer}>
                         <View style={styles.paginationDot} />
                         <View style={styles.paginationDot} />
@@ -61,11 +68,11 @@ const OnboardingScreen4 = () => {
                     <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
                         <Text style={styles.nextButtonText}>Commencer</Text>
                     </TouchableOpacity>
-                </SafeAreaView>
+                </View>
             </View>
-        </View> 
-    )
-}
+        </View>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -74,60 +81,60 @@ const styles = StyleSheet.create({
     },
     imageBackground: {
         width: width,
-        height: height * 0.58,
-        // Retiré l'alignement pour laisser le header gérer les boutons
-        resizeMode: 'center',
-        position : "relative",
-        opacity: 3,
+        height: height * 0.55,
     },
     header: {
         width: '100%',
-        paddingHorizontal: 0,
-        alignItems: 'flex-start', // Aligner le contenu (bouton) à gauche
-       
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
     },
     headerButton: {
-        padding: 10,
-        backgroundColor : "#0000004D",
-       
+        padding: 12,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
     },
     headerButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
     },
+    headerSpacer: {
+        flex: 1,
+    },
     contentContainer: {
-        flex: 0.7,
+        flex: 1,
         backgroundColor: '#fff',
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
-        marginTop: -70,
-        paddingTop: 10,
-        paddingHorizontal: 20,
-        alignItems: 'center',
+        marginTop: -40,
+        paddingTop: 24,
+        paddingHorizontal: 24,
     },
-    contentWrapper: {
+    mainContent: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'space-around',
-        width: '100%',
+        justifyContent: 'center',
     },
     titleContainer: {
         alignItems: 'center',
+        marginBottom: 16,
     },
-    welcomeText: {
-        fontSize: 22,
+    titleText: {
+        fontSize: 24,
         fontWeight: 'bold',
         color: '#333',
-        letterSpacing: 1,
-        textAlign : "center",
+        textAlign: 'center',
+        lineHeight: 32,
     },
     descriptionText: {
         textAlign: 'center',
         fontSize: 16,
         color: '#555',
         lineHeight: 24,
-        marginVertical: 20,
+    },
+    bottomContainer: {
+        alignItems: 'center',
+        paddingBottom: 24,
     },
     paginationContainer: {
         flexDirection: 'row',
@@ -142,13 +149,14 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     activeDot: {
-        backgroundColor: '#F48C06',
+        backgroundColor: PRIMARY_COLOR,
         width: 25,
     },
     nextButton: {
-        backgroundColor: '#F48C06',
-        paddingVertical: 15,
-        paddingHorizontal: 100,
+        backgroundColor: PRIMARY_COLOR,
+        paddingVertical: 16,
+        width: '100%',
+        alignItems: 'center',
         borderRadius: 30,
     },
     nextButtonText: {

@@ -24,7 +24,9 @@ import {
 } from 'lucide-react-native';
 
 import { useUser } from '../context/UserContext';
-import TabBar from '../components/TabBar';
+
+// Design System
+import { Colors } from '../shared/constants';
 
 type SettingsPageNavigationProp = StackNavigationProp<RootStackParamList, 'SettingsPage'>;
 
@@ -127,7 +129,6 @@ const s = StyleSheet.create({
 });
 
 const SettingsPage = () => {
-  const [currentRoute, setCurrentRoute] = useState('Parametres');
   const navigation = useNavigation<SettingsPageNavigationProp>();
   const insets = useSafeAreaInsets();
   const { profile, isDarkMode, toggleDarkMode, logout } = useUser();
@@ -164,22 +165,6 @@ const SettingsPage = () => {
       StatusBar.setBackgroundColor(isDarkMode ? '#111827' : '#FFFFFF');
     }
   }, [isDarkMode]);
-
-  const handleTabPress = (routeName: string) => {
-    switch (routeName) {
-      case 'Accueil':
-        navigation.navigate('HomePage');
-        break;
-      case 'Statistiques':
-        navigation.navigate('StatisticsPage');
-        break;
-      case 'MapPage':
-        navigation.navigate('MapPage');
-        break;
-      default:
-        setCurrentRoute(routeName);
-    }
-  };
 
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -230,17 +215,17 @@ const SettingsPage = () => {
             }}
             showsVerticalScrollIndicator={false}
           >
-            {/* === Section Principale === */}
-             <View style={styles.profileCard}
-            
-             >
-                <TouchableOpacity
-                onPress={() => navigation.navigate('EditProfilePage')}>
-                        <Image source={{ uri: profile.avatarUrl }} style={styles.avatar} />
-                        <Text style={[styles.name, isDarkMode && { color: '#FFFFFF' }]}>{fullName}</Text>
-                        <Text style={styles.email}>{profile.email}</Text>
-                    </TouchableOpacity>
-                    </View>
+            {/* === Section Profil === */}
+            <View style={styles.profileCard}>
+              <TouchableOpacity
+                style={styles.profileTouchable}
+                onPress={() => navigation.navigate('EditProfilePage')}
+              >
+                <Image source={{ uri: profile.avatarUrl }} style={styles.avatar} />
+                <Text style={[styles.name, isDarkMode && { color: '#FFFFFF' }]}>{fullName}</Text>
+                <Text style={styles.email}>{profile.email}</Text>
+              </TouchableOpacity>
+            </View>
             
             <View style={[styles.section, isDarkMode && styles.sectionDark]}>
               <SettingsRow
@@ -300,10 +285,7 @@ const SettingsPage = () => {
             </View> */}
           </ScrollView>
         </>
-        
-      )
-      }
-      <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
+      )}
     </SafeAreaView>
   );
 };
@@ -335,10 +317,39 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   profileButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
-   profileCard: { alignItems: 'center', paddingVertical: 20, marginBottom: 20, flex : 1 },
-    avatar: { width: 100, height: 100, borderRadius: 50, borderWidth: 3, borderColor: '#F48C06', marginBottom: 10 },
-    name: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
-    email: { fontSize: 14, color: '#9CA3AF' },
+  profileCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 24,
+    marginBottom: 20,
+    width: '100%',
+  },
+  profileTouchable: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: '#F48C06',
+    marginBottom: 12,
+    alignSelf: 'center',
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    textAlign: 'center',
+  },
+  email: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginTop: 4,
+  },
 });
 
 export default SettingsPage;

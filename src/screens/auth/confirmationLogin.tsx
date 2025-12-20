@@ -1,16 +1,17 @@
-import { 
-    View, 
-    StyleSheet, 
-    Image, 
-    Text, 
-    TextInput, 
-    Alert, 
-    useWindowDimensions, 
+import {
+    View,
+    StyleSheet,
+    Image,
+    Text,
+    TextInput,
+    Alert,
+    useWindowDimensions,
     Platform,
     Animated,
     KeyboardAvoidingView,
     ScrollView,
-    Keyboard
+    Keyboard,
+    StatusBar,
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +19,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Ces imports d'assets sont conservés mais nécessitent des fichiers SVG/PNG dans votre projet
 import BGPanner from "../../assets/images/Group.svg";
 import CLOCKPannel from "../../assets/images/Vector.svg";
+
+const PRIMARY_COLOR = '#F48C06';
 
 // Interfaces nettoyées et unifiées
 interface OtpArray extends Array<string> {
@@ -88,10 +91,12 @@ const ConfirmationLogin = ({ navigation }: any) => {
         if (VALID_CODES.includes(code)) {
             // --- CAS 1 : SUCCÈS ---
             console.log('Code valide:', code);
-          //  Alert.alert("Validation Réussie", "Bienvenue ! Redirection vers la page d'accueil.");
-            
-            // Simuler la navigation 
-             navigation.navigate('HomePage'); 
+
+            // Navigation vers l'écran principal (MainTabs contient HomePage)
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'MainTabs' }],
+            }); 
             
         } else {
             startShake(); // Déclencher l'animation de secousse et l'effacement
@@ -243,6 +248,7 @@ const ConfirmationLogin = ({ navigation }: any) => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar barStyle="dark-content" backgroundColor={PRIMARY_COLOR} translucent={false} />
             {/* Arriere plan */}
             <View style={styles.backgroundWrapper}>
                 <BGPanner

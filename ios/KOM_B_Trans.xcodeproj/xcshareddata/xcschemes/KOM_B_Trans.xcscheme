@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "KOM_B_Pro.app"
-               BlueprintName = "KOM_B_Pro"
-               ReferencedContainer = "container:KOM_B_Pro.xcodeproj">
+               BuildableName = "KOM_B_Trans.app"
+               BlueprintName = "KOM_B_Trans"
+               ReferencedContainer = "container:KOM_B_Trans.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
                BuildableName = "KOM_B_ProTests.xctest"
                BlueprintName = "KOM_B_ProTests"
-               ReferencedContainer = "container:KOM_B_Pro.xcodeproj">
+               ReferencedContainer = "container:KOM_B_Trans.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "KOM_B_Pro.app"
-            BlueprintName = "KOM_B_Pro"
-            ReferencedContainer = "container:KOM_B_Pro.xcodeproj">
+            BuildableName = "KOM_B_Trans.app"
+            BlueprintName = "KOM_B_Trans"
+            ReferencedContainer = "container:KOM_B_Trans.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "KOM_B_Pro.app"
-            BlueprintName = "KOM_B_Pro"
-            ReferencedContainer = "container:KOM_B_Pro.xcodeproj">
+            BuildableName = "KOM_B_Trans.app"
+            BlueprintName = "KOM_B_Trans"
+            ReferencedContainer = "container:KOM_B_Trans.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

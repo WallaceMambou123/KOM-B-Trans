@@ -1,22 +1,22 @@
 // src/screens/MessagesPage.tsx
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import TabBar from '../components/TabBar';
 import { MessageCircle, CheckCircle, XCircle, ArrowLeft } from 'lucide-react-native';
+
+// Design System
+import { Colors } from '../shared/constants';
 
 
 import { useMessages } from '../context/MessagesContext';
@@ -27,37 +27,16 @@ const MessagesPage = () => {
   const navigation = useNavigation<MessagesPageNavigationProp>();
   const insets = useSafeAreaInsets();
   const { messages, loading, markAsRead, markAllAsRead } = useMessages();
-  const [currentRoute, setCurrentRoute] = useState('Messages');
 
   const unreadCount = messages.filter(m => !m.read).length;
-
-  const handleTabPress = (routeName: string) => {
-    switch (routeName) {
-      case 'Accueil':
-        navigation.navigate('HomePage');
-        break;
-      case 'Produits':
-        navigation.navigate('CommandesPage');
-        break;
-      case 'Statistiques':
-        navigation.navigate('StatisticsPage');
-        break;
-      case 'Parametres':
-        navigation.navigate('SettingsPage');
-        break;
-      default:
-        setCurrentRoute(routeName);
-    }
-  };
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loading}>
-          <ActivityIndicator size="large" color="#F48C06" />
+          <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>Chargement des messages...</Text>
         </View>
-        <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
       </SafeAreaView>
     );
   }
@@ -113,8 +92,6 @@ const MessagesPage = () => {
           ))
         )}
       </ScrollView>
-
-      {/* <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} /> */}
     </SafeAreaView>
   );
 };

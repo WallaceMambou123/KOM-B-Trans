@@ -84,9 +84,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.kom_b_pro"
+    namespace "com.kom_b_trans"
     defaultConfig {
-        applicationId "com.kom_b_pro"
+        applicationId "com.kom_b_trans"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

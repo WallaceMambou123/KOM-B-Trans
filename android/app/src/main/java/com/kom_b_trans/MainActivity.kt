@@ -1,4 +1,4 @@
-package com.kom_b_pro
+package com.kom_b_trans
 
 import android.os.Bundle // Ajout de l'import pour Bundle
 import com.facebook.react.ReactActivity
@@ -19,7 +19,7 @@ class MainActivity : ReactActivity() {
   /**
    * Returns the name of the main component registered from JavaScript...
    */
-  override fun getMainComponentName(): String = "KOM_B_Pro"
+  override fun getMainComponentName(): String = "KOM_B_Trans"
 
   /**
    * Returns the instance of the [ReactActivityDelegate]...

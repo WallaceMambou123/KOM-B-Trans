@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { UserProvider } from './src/context/UserContext';
 import { ProductsProvider } from './src/context/ProductsContext';
@@ -19,15 +20,17 @@ function App() {
   }, []);
 
   return (
-    <ProductsProvider>
-      <MessagesProvider>
-        <UserProvider>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
-        </UserProvider>
-      </MessagesProvider>
-    </ProductsProvider>
+    <SafeAreaProvider>
+      <ProductsProvider>
+        <MessagesProvider>
+          <UserProvider>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </UserProvider>
+        </MessagesProvider>
+      </ProductsProvider>
+    </SafeAreaProvider>
   );
 }
 

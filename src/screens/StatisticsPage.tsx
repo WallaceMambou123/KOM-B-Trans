@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import TabBar from '../components/TabBar';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -57,7 +56,6 @@ const RatingStars = ({ rating }: { rating: number }) => {
 
 const StatisticsPage = () => {
   const navigation = useNavigation<StatisticsPageNavigationProp>();
-  const [currentRoute, setCurrentRoute] = useState('Statistiques');
   const [timeFilter, setTimeFilter] = useState<'Jour' | 'Mois'>('Mois');
   const insets = useSafeAreaInsets();
 
@@ -85,26 +83,6 @@ const StatisticsPage = () => {
       };
     }, [navigation])
   );
-
-  const handleTabPress = (name: string) => {
-    switch (name) {
-      case 'Accueil':
-        navigation.navigate('HomePage');
-        break;
-      case 'Statistiques':
-        // déjà sur cette page
-        break;
-      case 'Maps':
-      case 'MapPage':
-        navigation.navigate('MapPage');
-        break;
-      case 'Parametres':
-        navigation.navigate('SettingsPage');
-        break;
-      default:
-        setCurrentRoute(name);
-    }
-  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -166,8 +144,6 @@ const StatisticsPage = () => {
           </View>
         </View>
       </ScrollView>
-
-      <TabBar currentRoute={currentRoute} onTabPress={handleTabPress} />
     </SafeAreaView>
   );
 };

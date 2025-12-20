@@ -10,34 +10,28 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  StatusBar,
 } from 'react-native';
-import {ChevronLeft} from 'lucide-react-native';
+import { ChevronLeft, Eye, EyeClosed } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/AppNavigator';
-import BGPanner from "../../assets/images/Group.svg"
-import { Eye, EyeClosed } from 'lucide-react-native';
+import BGPanner from "../../assets/images/Group.svg";
 
+const PRIMARY_COLOR = '#F48C06';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'LoginScreen'>;
 
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
-  
-  // États pour les champs du formulaire
+
   const [formData, setFormData] = useState({
     emailOrPhone: '',
     password: '',
   });
 
-  // État pour la visibilité du mot de passe
   const [showPassword, setShowPassword] = useState(false);
 
-  /**
-   * Met à jour les données du formulaire
-   * @param field - Le champ à mettre à jour
-   * @param value - La nouvelle valeur
-   */
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -45,74 +39,37 @@ const LoginScreen = () => {
     }));
   };
 
-  /**
-   * Valide les données du formulaire
-   * @returns true si toutes les validations passent
-   */
   const validateForm = (): boolean => {
-    // Validation de l'email ou téléphone
-    // if (!formData.emailOrPhone.trim()) {
-    //   Alert.alert('Erreur', 'L\'email ou le numéro de téléphone est requis');
-    //   return false;
-    // }
-
-    // // Validation du mot de passe
-    // if (!formData.password.trim()) {
-    //   Alert.alert('Erreur', 'Le mot de passe est requis');
-    //   return false;
-    // }
-
+    if (!formData.emailOrPhone.trim()) {
+      Alert.alert('Erreur', 'L\'email ou le numéro de téléphone est requis');
+      return false;
+    }
+    if (!formData.password.trim()) {
+      Alert.alert('Erreur', 'Le mot de passe est requis');
+      return false;
+    }
     return true;
   };
 
-  /**
-   * Gère la connexion
-   */
   const handleLogin = () => {
     if (validateForm()) {
-      // Simulation d'un appel API de connexion
       console.log('Tentative de connexion avec:', formData);
-      
-      // Simulation d'une connexion réussie
-      Alert.alert(
-        'Connexion réussie!',
-        'Vous êtes maintenant connecté.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Ici, vous pourriez naviguer vers l'écran principal de l'application
-              // navigation.navigate('MainScreen');
-              console.log('Utilisateur connecté');
-            },
-          },
-        ]
-      );
+      navigation.navigate('ConfirmationLogin');
     }
   };
 
-  /**
-   * Navigue vers l'écran d'inscription
-   */
   const navigateToSignUp = () => {
     navigation.navigate('SignUpScreen');
   };
 
-  const ConfirmationToLogin =()=>{
-    navigation.navigate('ConfirmationLogin')
-  }
-
-  /**
-   * Gère l'oubli de mot de passe
-   */
   const handleForgotPassword = () => {
     Alert.alert(
       'Mot de passe oublié',
       'Un email de réinitialisation sera envoyé à votre adresse email.',
       [
         { text: 'Annuler', style: 'cancel' },
-        { 
-          text: 'Envoyer', 
+        {
+          text: 'Envoyer',
           onPress: () => {
             console.log('Email de réinitialisation envoyé');
           }
@@ -122,11 +79,12 @@ const LoginScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-       <View style={styles.backgroundWrapper}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <View style={styles.backgroundWrapper}>
         <BGPanner
           width="100%"
           height="100%"
@@ -134,51 +92,57 @@ const LoginScreen = () => {
           style={StyleSheet.absoluteFill}
         />
       </View>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         {/* En-tête avec logo */}
-        
-       <View style={styles.header}>
-          <TouchableOpacity 
+        <View style={styles.header}>
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
             <ChevronLeft color="black" size={24} />
           </TouchableOpacity>
-           
-          <Image 
-            source={require('../../assets/images/componentLogo.png')} 
-            style={styles.logo} 
+
+          <Image
+            source={require('../../assets/images/componentLogo.png')}
+            style={styles.logo}
           />
         </View>
-          
-         
-       
+
+        {/* Titre */}
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Bienvenue !</Text>
+          <Text style={styles.subtitle}>Connectez-vous pour continuer</Text>
+        </View>
 
         {/* Formulaire */}
         <View style={styles.formContainer}>
           {/* Email ou Téléphone */}
-           <View style={styles.inputGroup}>
-                      <Text style={styles.label}>Email</Text>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Namikaze@kom-b.com"
-                        value='OKOK@gmail.com'
-                        onChangeText={(value) => handleInputChange('email', value)}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        placeholderTextColor="#999"
-                      />
-                    </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email ou téléphone</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="kom.b@gmail.com"
+              value={formData.emailOrPhone}
+              onChangeText={(value) => handleInputChange('emailOrPhone', value)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              placeholderTextColor="#999"
+            />
+          </View>
 
           {/* Mot de passe */}
-         <View style={styles.inputGroup}>
+          <View style={styles.inputGroup}>
             <Text style={styles.label}>Mot de passe</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={styles.passwordInput}
-                placeholder="••••••••"
-                value='12121212'
-                onChangeText={(value) => handleInputChange('motDePasse', value)}
+                placeholder="Entrez votre mot de passe"
+                value={formData.password}
+                onChangeText={(value) => handleInputChange('password', value)}
                 secureTextEntry={!showPassword}
                 placeholderTextColor="#999"
               />
@@ -197,29 +161,34 @@ const LoginScreen = () => {
           </TouchableOpacity>
 
           {/* Bouton de connexion */}
-          <TouchableOpacity style={styles.loginButton} onPress={ConfirmationToLogin}>
-            <Text style={styles.loginButtonText}>Log In</Text>
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>Se connecter</Text>
           </TouchableOpacity>
 
           {/* Séparateur */}
-          <Text style={styles.separator}>Ou</Text>
+          <Text style={styles.separator}>Ou continuer avec</Text>
 
           {/* Boutons de connexion sociale */}
           <View style={styles.socialButtons}>
-                      <TouchableOpacity style={styles.socialButton}>
-                        <Image source={require('../../assets/images/iconGoogle.png')} style={styles.socialIcon} />
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.socialButton}>
-                        <Image source={require('../../assets/images/iconFacebook.jpg')} style={styles.socialIcon} />
-                      </TouchableOpacity>
-                    </View>
+            <TouchableOpacity style={styles.socialButton}>
+              <Image
+                source={require('../../assets/images/iconGoogle.png')}
+                style={styles.socialIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.socialButton}>
+              <View style={styles.facebookIconContainer}>
+                <Text style={styles.facebookIconText}>f</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
 
           {/* Lien vers l'inscription */}
           <View style={styles.signUpLink}>
             <Text style={styles.signUpText}>
-              Pas de compte ?{' '}
+              Pas encore de compte ?{' '}
               <Text style={styles.signUpLinkText} onPress={navigateToSignUp}>
-                Crée un compte
+                Créer un compte
               </Text>
             </Text>
           </View>
@@ -233,39 +202,51 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-    backgroundWrapper: {
-  ...StyleSheet.absoluteFill,
-    opacity: 0.8, // Ajuste selon ton design
+  backgroundWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.8,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   header: {
-     alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 50,
+    paddingTop: 60,
     paddingBottom: 10,
     position: 'relative',
-    height: 100,
-    marginTop: 25,
-    
+    height: 120,
   },
   backButton: {
-      position: 'absolute',
-    top: 55,
+    position: 'absolute',
+    top: 60,
     left: 20,
     padding: 10,
     zIndex: 10,
   },
-  backButtonText: {
-    fontSize: 24,
-    color: '#333',
+  logo: {
+    width: 180,
+    height: 60,
+    resizeMode: 'contain',
   },
-
+  titleContainer: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+  },
   formContainer: {
     paddingHorizontal: 20,
-    paddingTop: 70,
   },
   inputGroup: {
     marginBottom: 20,
@@ -277,37 +258,30 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#e1e5e9',
-    borderRadius: 8,
+    borderWidth: 0,
+    borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     fontSize: 16,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F7F7F7',
     color: '#333',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e1e5e9',
-    borderRadius: 8,
-    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    backgroundColor: '#F7F7F7',
   },
   passwordInput: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     fontSize: 16,
     color: '#333',
   },
   eyeButton: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  eyeIcon: {
-    fontSize: 18,
-    color: '#ff6b35',
+    paddingVertical: 14,
   },
   forgotPasswordButton: {
     alignSelf: 'flex-end',
@@ -315,15 +289,15 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontSize: 14,
-    color: '#ff6b35',
+    color: PRIMARY_COLOR,
     fontWeight: '600',
   },
   loginButton: {
-    backgroundColor: '#ff6b35',
-    borderRadius: 8,
+    backgroundColor: PRIMARY_COLOR,
+    borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   loginButtonText: {
     color: '#ffffff',
@@ -334,28 +308,44 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 24,
   },
   socialButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 30,
+    gap: 24,
   },
   socialButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#f8f9fa',
-    borderWidth: 1,
-    borderColor: '#e1e5e9',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#F7F7F7',
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
-  socialButtonText: {
-    fontSize: 20,
+  socialIcon: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
+  },
+  facebookIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#1877F2',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  facebookIconText: {
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
   },
   signUpLink: {
     alignItems: 'center',
@@ -365,19 +355,9 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   signUpLinkText: {
-    color: '#ff6b35',
+    color: PRIMARY_COLOR,
     fontWeight: '600',
   },
-   logo: {
-    width: 180,
-    height: 60,
-    resizeMode: 'contain',
-  },
-    socialIcon: {
-    width: 24,
-    height: 24,
-    resizeMode: 'contain',
-  }
 });
 
 export default LoginScreen;
